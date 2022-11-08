@@ -61,6 +61,7 @@ def testing(request):
     return render(request, 'testing.html', {})
 
 
+@csrf_exempt
 def default_selection(request):
     return render(request, 'testing.html', {'form': None, 'messages': None, "songs": None})
 
