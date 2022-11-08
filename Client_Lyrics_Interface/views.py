@@ -6,6 +6,7 @@ import time
 from django import forms
 from lyricsgenius import Genius
 from .MarkovChain import *
+from django.views.decorators.csrf import csrf_exempt
 
 
 lyrics = []
@@ -64,6 +65,7 @@ def default_selection(request):
     return render(request, 'testing.html', {'form': None, 'messages': None, "songs": None})
 
 
+@csrf_exempt
 def get_name_fields(request):
     try:
         if request.method == 'POST':
@@ -95,6 +97,7 @@ def get_name_fields(request):
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
 
 
+@csrf_exempt
 def get_album_fields(request):
     try:
         if request.method == 'POST':
@@ -133,6 +136,7 @@ def get_album_fields(request):
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
 
 
+@csrf_exempt
 def get_song_fields(request):
     try:
         if request.method == 'POST':

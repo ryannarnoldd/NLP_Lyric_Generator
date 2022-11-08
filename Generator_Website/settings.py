@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', 'nlplyricgenerator-production.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['http://localhost',
                         'https://nlplyricgenerator-production.up.railway.app',
-                        'https://genius.com/*']
+                        'https://genius.com']
 
 # Application definition
 
