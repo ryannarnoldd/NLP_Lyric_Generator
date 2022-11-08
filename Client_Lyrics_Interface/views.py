@@ -4,11 +4,25 @@ from django.shortcuts import HttpResponseRedirect, render
 from django.contrib import messages
 import time
 from django import forms
+from lyricsgenius import Genius
+from .MarkovChain import *
 
-from .LyricGenerator import *
 
 lyrics = []
 songs = []
+
+genius = Genius(
+    'I9ceP8lra9tVkTCtlop-CiQojVy9_HhPpP2ZdnD_wEHcgphiDGVGm_a6MYRPHXto')
+
+genius.verbose = False
+genius.remove_section_headers = True
+genius.skip_non_songs = False
+genius.excluded_terms = ["(Remix)", "(Live)"]
+
+song, album, artist = 0, 0, 0
+song_names, album_names, artist_names = '', '', ''
+corpus_lyrics = []
+lyr = ''
 
 
 class Artist_Name_Form(forms.Form):
