@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure--+&dzns0n8l+b8xb%=n@6)j*g64uyay)t3=%ft+_0-&6gfw9(%
 DEBUG = True
 
 ALLOWED_HOSTS = ['nlplyricgenerator-production.up.railway.app']
-
+CSRF_TRUSTED_ORIGINS = ['https://nlplyricgenerator-production.up.railway.app']
 
 # Application definition
 
