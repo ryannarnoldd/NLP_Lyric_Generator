@@ -1,0 +1,59 @@
+<style>
+    input{
+        text-align: center;
+        flex: auto;
+    }
+</style>
+
+<h1 style = "text-align: center;">Lyric Generator :3</h1>
+<hr style = "padding: 2px; margin: auto; color: black; fill:black">
+
+<form action="" method="post" 
+style = "
+margin: auto; 
+text-align: center;
+border-radius: 25px;
+border: 2px solid black;
+padding: 20px;
+width: 50%;
+height: auto; 
+">     
+
+        {% csrf_token %}
+        {{ select }}
+        <br><br>
+        {{ form | linebreaks}}
+        <input type="submit" value="Submit">
+
+    <!-- 
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    -->
+
+        <br><br>
+        <hr>
+        {% if songs %}
+            <ul class="songs" style="text-align:center">
+                {% for song in songs %}
+                    <p> {{ song }} </p>
+                {% endfor %}
+            </ul>
+        {% endif %}
+  
+</form>
+
+<script>
+    const redirect_table = ["./artists", "./album", "./songs"];
+    var selectors = document.querySelectorAll("input[type='radio']");
+    for(const s in selectors){
+        selectors[s].onclick = function(){
+            window.location.href = redirect_table[s];
+            selectors[s].checked = true;
+        }
+    }
+</script>
