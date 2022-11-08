@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--+&dzns0n8l+b8xb%=n@6)j*g64uyay)t3=%ft+_0-&6gfw9(%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://nlplyricgenerator-production.up.railway.app/']
+ALLOWED_HOSTS = ['nlplyricgenerator-production.up.railway.app']
 
 
 # Application definition
@@ -76,6 +76,8 @@ WSGI_APPLICATION = 'Generator_Website.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+
+# TODO Make sure we take a look at this once we want to persist lyric data using postgress
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
