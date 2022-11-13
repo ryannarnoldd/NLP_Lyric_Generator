@@ -7,6 +7,7 @@ from django import forms
 from lyricsgenius import Genius
 from .MarkovChain import *
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 lyrics = []
@@ -15,9 +16,9 @@ songs = []
 genius = Genius(
     'I9ceP8lra9tVkTCtlop-CiQojVy9_HhPpP2ZdnD_wEHcgphiDGVGm_a6MYRPHXto')
 
-genius.verbose = False
+genius.verbose = True
 genius.remove_section_headers = True
-genius.skip_non_songs = False
+genius.skip_non_songs = True
 genius.excluded_terms = ["(Remix)", "(Live)"]
 
 song, album, artist = 0, 0, 0
@@ -112,12 +113,50 @@ def get_album_fields(request):
 
                 # messages.info(request, str(request))
                 #print(album + " by " + name)
-                album = genius.search_album(name=album_name, artist=name)
+                '''album = genius.search_album(name=album_name, artist=name)
                 print(album)
                 for song in album.tracks:
                     lyr += song.to_text()
+                '''
 
-                generator = MarkovChain(corpus=' '.join([lyr]))
+                s = genius.search_all("Drake")
+                song_id = s["sections"][0]['hits'][0]['result']['id']
+
+                sons = genius.artist_songs(song_id,
+                                           sort='popularity',
+                                           per_page=1)
+
+                song_ids = []
+                for song in sons["songs"]:
+                    song_ids.append(song["id"])
+
+                l = []
+                for id in song_ids:
+                    temp_lyrics = genius.lyrics(
+                        id, remove_section_headers=True)
+                    # song.join(temp_lyrics)
+                    # print(temp_lyrics)
+                    l.append(temp_lyrics)
+
+                dd = ""
+                for d in l:
+                    dd += d
+
+                print(dd)
+                # for hits in s["hits"]:
+                #   for results in hits["result"]:
+                # for title in results["full_title"]:
+                #    print(title)
+                #      for vals in results.title():
+                #         print(vals)
+
+                # for song in s:
+                #    if s['title'] == "Rap God":
+                #        song_id = s['id']
+                #song = genius.song(song_id)
+                # print(song)
+
+                generator = MarkovChain(corpus=dd)
                 gen = generator.gen_song(
                     lines=15, length_range=[7, 10])
                 gen = gen.splitlines()
@@ -131,8 +170,8 @@ def get_album_fields(request):
             s = Selection_Box()
             s.fields["selector"].initial = [2]
     except Exception as e:
-        #print(RuntimeError("Something bad happened while generating lyrics..."))
-        print(e)
+        print(RuntimeError("Something bad happened while generating lyrics..."))
+        # print(e)
 
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
 
