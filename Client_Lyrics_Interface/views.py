@@ -1,10 +1,12 @@
 
 from multiprocessing import context
+from bs4 import BeautifulSoup
 from django.shortcuts import HttpResponseRedirect, render
 from django.contrib import messages
 import time
 from django import forms
 from lyricsgenius import Genius
+import requests
 from .MarkovChain import *
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -112,7 +114,7 @@ def get_album_fields(request):
             if form.is_valid():
 
                 # messages.info(request, str(request))
-                #print(album + " by " + name)
+                # print(album + " by " + name)
                 '''album = genius.search_album(name=album_name, artist=name)
                 print(album)
                 for song in album.tracks:
@@ -128,21 +130,30 @@ def get_album_fields(request):
 
                 song_ids = []
                 for song in sons["songs"]:
-                    song_ids.append(song["id"])
+                    page = requests.get("https://genius.com" + song["path"])
+                    html = BeautifulSoup(page.text, "html.parser")
+                    [h.extract() for h in html('script')]
+                    l = html.find("div",
+                                  {"data-lyrics-container": "true"}).get_text(separator="\n")
+                    cleaned = re.sub(r'\[(.|\n)*?\]', ' ', l)
+                    cleaned = re.sub(r'\((.|\n)*?\)', ' ', cleaned)
+                    print(cleaned)
+                    # song_ids.append(song["id"])
 
-                l = []
-                for id in song_ids:
-                    temp_lyrics = genius.lyrics(
-                        id, remove_section_headers=True)
+                # l = []
+                # for id in song_ids:
+
+                    # temp_lyrics = genius.lyrics(
+                    #    id, remove_section_headers=True)
                     # song.join(temp_lyrics)
                     # print(temp_lyrics)
-                    l.append(temp_lyrics)
+                    # l.append(temp_lyrics)
 
-                dd = ""
-                for d in l:
-                    dd += d
+                #dd = ""
+                # for d in l:
+                #    dd += d
 
-                print(dd)
+                # print(dd)
                 # for hits in s["hits"]:
                 #   for results in hits["result"]:
                 # for title in results["full_title"]:
@@ -153,10 +164,10 @@ def get_album_fields(request):
                 # for song in s:
                 #    if s['title'] == "Rap God":
                 #        song_id = s['id']
-                #song = genius.song(song_id)
+                # song = genius.song(song_id)
                 # print(song)
 
-                generator = MarkovChain(corpus=dd)
+                generator = MarkovChain(corpus=cleaned)
                 gen = generator.gen_song(
                     lines=15, length_range=[7, 10])
                 gen = gen.splitlines()
@@ -176,7 +187,7 @@ def get_album_fields(request):
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
 
 
-@csrf_exempt
+@ csrf_exempt
 def get_song_fields(request):
     try:
         if request.method == 'POST':
