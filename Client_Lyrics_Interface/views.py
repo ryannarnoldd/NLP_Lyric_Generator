@@ -123,31 +123,31 @@ def get_album_fields(request):
 
                 s = genius.search_all("Drake")
                 song_id = s["sections"][0]['hits'][0]['result']['id']
-
-                sons = genius.artist_songs(song_id,
-                                           sort='popularity',
-                                           per_page=1)
-
-                song_ids = []
-                for song in sons["songs"]:
-                    page = requests.get("https://genius.com" + song["path"])
-                    html = BeautifulSoup(page.text, "html.parser")
-                    [h.extract() for h in html('script')]
-                    l = html.find("div",
-                                  {"data-lyrics-container": "true"}).get_text(separator="\n")
-                    cleaned = re.sub(r'\[(.|\n)*?\]', ' ', l)
-                    cleaned = re.sub(r'\((.|\n)*?\)', ' ', cleaned)
-                    print(cleaned)
-                    # song_ids.append(song["id"])
+                print(song_id)
+                # sons = genius.artist_songs(song_id,
+                #                           sort='popularity',
+                #                           per_page=1)
+#
+                #song_ids = []
+                # for song in sons["songs"]:
+                #    page = requests.get("https://genius.com" + song["path"])
+                #    html = BeautifulSoup(page.text, "html.parser")
+                #    [h.extract() for h in html('script')]
+                #    l = html.find("div",
+                #                  {"data-lyrics-container": "true"}).get_text(separator="\n")
+                #    cleaned = re.sub(r'\[(.|\n)*?\]', ' ', l)
+                #    cleaned = re.sub(r'\((.|\n)*?\)', ' ', cleaned)
+                #    print(cleaned)
+                # song_ids.append(song["id"])
 
                 # l = []
                 # for id in song_ids:
 
-                    # temp_lyrics = genius.lyrics(
-                    #    id, remove_section_headers=True)
-                    # song.join(temp_lyrics)
-                    # print(temp_lyrics)
-                    # l.append(temp_lyrics)
+                # temp_lyrics = genius.lyrics(
+                #    id, remove_section_headers=True)
+                # song.join(temp_lyrics)
+                # print(temp_lyrics)
+                # l.append(temp_lyrics)
 
                 #dd = ""
                 # for d in l:
@@ -167,12 +167,12 @@ def get_album_fields(request):
                 # song = genius.song(song_id)
                 # print(song)
 
-                generator = MarkovChain(corpus=cleaned)
-                gen = generator.gen_song(
-                    lines=15, length_range=[7, 10])
-                gen = gen.splitlines()
-                for line in gen:
-                    songs.append(line)
+                #generator = MarkovChain(corpus=cleaned)
+                # gen = generator.gen_song(
+                #    lines=15, length_range=[7, 10])
+                #gen = gen.splitlines()
+                # for line in gen:
+                #    songs.append(line)
 
             return HttpResponseRedirect('/album')
         else:
@@ -181,8 +181,8 @@ def get_album_fields(request):
             s = Selection_Box()
             s.fields["selector"].initial = [2]
     except Exception as e:
-        print(RuntimeError("Something bad happened while generating lyrics..."))
-        # print(e)
+        #print(RuntimeError("Something bad happened while generating lyrics..."))
+        print(e)
 
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
 
