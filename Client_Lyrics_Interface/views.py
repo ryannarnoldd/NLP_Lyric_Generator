@@ -71,7 +71,7 @@ def default_selection(request):
 
 
 @ csrf_exempt
-def get_song_fields(request):
+def get_songs_fields(request):
     try:
         if request.method == 'POST':
             genius.timeout = 8
@@ -108,7 +108,7 @@ def get_song_fields(request):
 
 
 @csrf_exempt
-def get_album_fields(request):
+def get_albums_fields(request):
     try:
         if request.method == 'POST':
             genius.timeout = 8
@@ -193,7 +193,7 @@ def get_album_fields(request):
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
 
 @csrf_exempt
-def get_artist_fields(request):
+def get_artists_fields(request):
     try:
         if request.method == 'POST':
             genius.timeout = 8
