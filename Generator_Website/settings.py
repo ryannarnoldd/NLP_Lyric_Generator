@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--+&dzns0n8l+b8xb%=n@6)j*g64uyay)t3=%ft+_0-&6gfw9(%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'nlplyricgenerator-production.up.railway.app']
+ALLOWED_HOSTS = ['localhost', 'nlplyricgenerator-production.up.railway.app', '127.0.0.1']
 CSRF_TRUSTED_ORIGINS = ['http://localhost',
                         'https://nlplyricgenerator-production.up.railway.app',
                         'https://genius.com']

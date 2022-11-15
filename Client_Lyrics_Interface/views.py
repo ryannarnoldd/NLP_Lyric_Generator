@@ -32,7 +32,7 @@ lyr = ''
 class Artist_Name_Form(forms.Form):
     # options = (('By_Artist', 'Generate from artist'))
     artist_name = forms.CharField(
-        label='Enter artist\'s name:', max_length=100)
+        label='Enter artist\'s name:', max_length=100 )
 
 
 class Album_Name_Form(forms.Form):
@@ -202,9 +202,9 @@ def get_song_fields(request):
             if form.is_valid():
 
                 # messages.info(request, str(request))
-                song = genius.search_song(song + " by " + name)
+                song = genius.search_song(song, name)
 
-                song_names += song.full_title + '\n'
+                song_names += song.title + '\n'
                 lyr += song.lyrics
 
                 generator = MarkovChain(corpus=' '.join([lyr]))
