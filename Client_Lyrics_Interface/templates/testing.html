@@ -5,7 +5,7 @@
     }
 </style>
 
-<h1 style = "text-align: center;">Lyric Generator :3</h1>
+<h1 style = "text-align: center;">Natural Language Lyric Generator!</h1>
 <hr style = "padding: 2px; margin: auto; color: black; fill:black">
 
 <form action="" method="post" 
@@ -22,7 +22,7 @@ height: auto;
         {% csrf_token %}
         {{ select }}
         <br><br>
-        {{ form | linebreaks}}
+        {{ form }}
         <input type="submit" value="Submit">
 
     <!-- 
