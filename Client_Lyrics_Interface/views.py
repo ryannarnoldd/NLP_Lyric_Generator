@@ -31,22 +31,21 @@ lyr = ''
 def Placeholder_Text(text):
     return forms.TextInput(attrs={f'placeholder': text})
 
-
 class Song_Name_Form(forms.Form):
     song_name = forms.CharField(
-        label='Song: ', max_length=100, widget=Placeholder_Text('Stressed Out'))
+        label='Song', max_length=100, widget=Placeholder_Text('Enter any song'))
     artist_name = forms.CharField(
-        label='Artist: ', max_length=100, widget=Placeholder_Text('twenty one pilots'))
+        label='Artist', max_length=100, widget=Placeholder_Text('Enter the artist'))
     # initial="twenty one pilots" is another option.
 class Album_Name_Form(forms.Form):
     album_name = forms.CharField(
-        label='Enter album by artist ', max_length=100, widget=Placeholder_Text('SOUR'))
+        label='Album', max_length=100, widget=Placeholder_Text('Enter any album'))
     artist_name = forms.CharField(
-        label='\nEnter artist\'s name ', max_length=100, widget=Placeholder_Text('Olivia Rodrigo'))
+        label='Artist', max_length=100, widget=Placeholder_Text('Enter the artist'))
 class Artist_Name_Form(forms.Form):
     # options = (('By_Artist', 'Generate from artist'))
     artist_name = forms.CharField(
-        label='\nEnter artist\'s name:', max_length=100, widget=Placeholder_Text('Taylor Swift'))
+        label='Artist', max_length=100, widget=Placeholder_Text('Enter any artist'))
 
 
 

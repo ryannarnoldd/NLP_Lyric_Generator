@@ -1,29 +1,57 @@
 <style>
-    input{
+    input {
         text-align: center;
         flex: auto;
+    }
+
+    p#lyrics {
+        text-align: center;
+        font-size: 16px;
+        font-family: 'Times New Roman', Times, serif;
+        color: #000000;
+        padding: 0;
+    }
+
+    form {
+        margin: auto; 
+        text-align: center; 
+        border-radius: 25px; 
+        border: 2px solid black; 
+        padding: 20px; 
+        width: 50%; 
+        height: auto
     }
 </style>
 
 <h1 style = "text-align: center;">Natural Language Lyric Generator!</h1>
-<hr style = "padding: 2px; margin: auto; color: black; fill:black">
 
-<form action="" method="post" 
-style = "
-margin: auto; 
-text-align: center;
-border-radius: 25px;
-border: 2px solid black;
-padding: 20px;
-width: 50%;
-height: auto; 
-">     
+<form action="" method="post">
 
-        {% csrf_token %}
-        {{ select }}
-        <br><br>
-        {{ form }}
-        <input type="submit" value="Submit">
+    {% csrf_token %}
+    {{ select }}            
+    <br>
+    {{ form }}
+    <br><br>
+    <input type="submit" value="Submit" />
+</form>
+
+    {% if songs %}
+        <br>
+        <h2 style = "text-align: center;">Generated Lyrics</h2>
+        
+        <hr style = "margin: auto; color: black; fill:black">
+
+        <div class="songs" style="text-align:center">
+            {% for song in songs %}
+                <p id="lyrics"> {{ song }} </p>
+            {% endfor %}
+        </div>
+
+        <hr style = "margin: auto; color: black; fill:black">
+
+    {% endif %}
+
+
 
     <!-- 
         {% if messages %}
@@ -35,16 +63,6 @@ height: auto;
         {% endif %}
     -->
 
-        <br><br>
-        <hr>
-        {% if songs %}
-            <ul class="songs" style="text-align:center">
-                {% for song in songs %}
-                    <p> {{ song }} </p>
-                {% endfor %}
-            </ul>
-        {% endif %}
-  
 </form>
 
 <script>
@@ -57,3 +75,4 @@ height: auto;
         }
     }
 </script>
+
