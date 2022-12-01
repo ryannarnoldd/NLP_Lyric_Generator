@@ -25,6 +25,7 @@ genius.excluded_terms = ["(Remix)", "(Live)"]
 
 song, album, artist = 0, 0, 0
 song_names, album_names, artist_names = '', '', ''
+number, length = 0, 0
 corpus_lyrics = []
 lyr = ''
 
@@ -59,6 +60,14 @@ class Selection_Box(forms.Form):
         initial="1",
     )
 
+    # Create a number select box to enter number 1-5 for the number of songs to generate
+    # Give a label saying "hit generate to generate a song based off of the above selection"
+    number = forms.IntegerField(label='Number of songs to generate', min_value=1, max_value=5, initial=1)
+    length = forms.IntegerField(label='Number of lines in each song', min_value=7, max_value=15, initial=10)
+
+
+
+
 
 def testing(request):
     return render(request, 'testing.html', {})
@@ -73,6 +82,7 @@ def default_selection(request):
 def get_songs_fields(request):
     try:
         if request.method == 'POST':
+            # Resest the songs http response to none.
             genius.timeout = 8
             artist_names, lyr, song_names = '', '', ''
             form = Song_Name_Form(request.POST)
@@ -80,22 +90,25 @@ def get_songs_fields(request):
             # select = Selection_Box(request.GET)
             song = request.POST['song_name']
             name = request.POST['artist_name']
-            choice = request.POST['selector']
+            number = request.POST['number']
+            length = request.POST['length']
             if form.is_valid():
+                songs.clear()
 
-                # messages.info(request, str(request))
                 song = genius.search_song(song, name)
-
                 song_names += song.title + '\n'
                 lyr += song.lyrics
 
                 generator = MarkovChain(corpus=' '.join([lyr]))
-                gen = generator.gen_song(
-                    lines=15, length_range=[7, 10])
-                gen = gen.splitlines()
-                for line in gen:
-                    songs.append(line)
-                # gen = "fThese lyrics were inspired by... \n" +  + '\n\n'
+                for _ in range(int(number)):
+                    gen = generator.gen_song(lines=int(length), length_range=[7,10])
+                    gen = gen.splitlines()
+                    song = []
+                    for line in gen:
+                        song.append(line)
+                    songs.append(song)
+
+                
                 return HttpResponseRedirect('/')
         else:
             form = Song_Name_Form()

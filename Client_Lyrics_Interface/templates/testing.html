@@ -32,10 +32,35 @@
     <br>
     {{ form }}
     <br><br>
-    <input type="submit" value="Submit" />
+    <input type="submit" value="Submit"/>
 </form>
 
+
     {% if songs %}
+        <br>
+        <h2 style = "text-align: center;">Generated Lyrics</h2>
+        
+        <hr style = "margin: auto; color: black; fill:black">
+
+        <!-- Make one row. For every element in songs, make a new column and place each line, line by line -->
+
+        <div style = "display: flex; flex-direction: row; justify-content: center; align-items: center; flex-wrap: wrap;">
+
+            {% for song in songs %}
+                <div style = "display: flex; flex-direction: column; justify-content: center; align-items: center; flex-wrap: wrap; margin: 10px; padding: 10px; border-radius: 25px; border: 2px solid black; width: 30%; height: auto">
+                    {% for line in song %}
+                        <p id = "lyrics">{{ line }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+        <hr style = "margin: auto; color: black; fill:black">
+
+    {% endif %}
+
+
+
+    <!-- {% if songs %}
         <br>
         <h2 style = "text-align: center;">Generated Lyrics</h2>
         
@@ -49,7 +74,7 @@
 
         <hr style = "margin: auto; color: black; fill:black">
 
-    {% endif %}
+    {% endif %} -->
 
 
 
@@ -66,6 +91,7 @@
 </form>
 
 <script>
+
     const redirect_table = ["./songs", "./albums", "./artists"];
     var selectors = document.querySelectorAll("input[type='radio']");
     for(const s in selectors){
