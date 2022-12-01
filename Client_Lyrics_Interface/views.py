@@ -120,15 +120,17 @@ def get_albums_fields(request):
 
                 # messages.info(request, str(request))
                 # print(album + " by " + name)
-                '''album = genius.search_album(name=album_name, artist=name)
+
+                album = genius.search_album(name=album_name, artist=name)
                 print(album)
                 for song in album.tracks:
                     lyr += song.to_text()
-                '''
+                print(lyr[0])
+                
 
-                s = genius.search_all("Drake")
-                song_id = s["sections"][0]['hits'][0]['result']['id']
-                print(song_id)
+                # s = genius.search_all("Drake")
+                # song_id = s["sections"][0]['hits'][0]['result']['id']
+                # print(song_id)
                 # sons = genius.artist_songs(song_id,
                 #                           sort='popularity',
                 #                           per_page=1)
@@ -172,23 +174,21 @@ def get_albums_fields(request):
                 # song = genius.song(song_id)
                 # print(song)
 
-                #generator = MarkovChain(corpus=cleaned)
-                # gen = generator.gen_song(
-                #    lines=15, length_range=[7, 10])
-                #gen = gen.splitlines()
-                # for line in gen:
-                #    songs.append(line)
+                generator = MarkovChain(corpus=lyr)
+                gen = generator.gen_song(
+                   lines=15, length_range=[7, 10])
+                gen = gen.splitlines()
+                for line in gen:
+                   songs.append(line)
 
-            return HttpResponseRedirect('/album')
+                return HttpResponseRedirect('/')
         else:
 
             form = Album_Name_Form()
             s = Selection_Box()
             s.fields["selector"].initial = [2]
-    except Exception as e:
-        #print(RuntimeError("Something bad happened while generating lyrics..."))
-        print(e)
-
+    except:
+        print(RuntimeError("Something bad happened while generating lyrics..."))
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
 
 @csrf_exempt
