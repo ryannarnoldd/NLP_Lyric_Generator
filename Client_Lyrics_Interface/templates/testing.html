@@ -38,16 +38,14 @@
 
 <div></div>
 {% if songs %}
-    <br>
-    <h2 style="text-align: center;">Generated Lyrics</h2>
-    <hr style="margin: auto; color: black; fill:black">
-
-    <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; flex-wrap: wrap;">
+    <h1 style="text-align: center;">Generated Lyrics</h1>
+    <!-- <hr style="margin: auto; color: black; fill:black"> -->
+    <div style="overflow-y: scroll; overflow-x: scroll; width:auto; white-space: nowrap;">
         {% for song in songs %}
         <div
-            style="display: flex; flex-direction: column; justify-content: center; align-items: center; flex-wrap: wrap; margin: 10px; padding: 10px; border-radius: 25px; border: 2px solid black; width: 30%; height: auto">
+            style="margin-left: 10px; margin-right: 10px; display: inline-block; flex-direction: column; justify-content: center; align-items: center; flex-wrap: wrap; margin: 10px; padding: 10px; border-radius: 25px; border: 2px solid black; width: 30%; height: auto">
             {% for line in song %}
-                <p id="lyrics" style="line-height: 0.25em;">{{ line }}</p>
+                <p id="lyrics">{{ line }}</p>
             {% endfor %}
         </div>
         {% endfor %}

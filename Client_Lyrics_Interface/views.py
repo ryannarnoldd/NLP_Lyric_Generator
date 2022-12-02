@@ -76,9 +76,9 @@ class Selection_Box(forms.Form):
     # Create a number select box to enter number 1-5 for the number of songs to generate
     # Give a label saying "hit generate to generate a song based off of the above selection"
     number = forms.IntegerField(
-        label='Number of songs to generate', min_value=1, max_value=5, initial=1)
+        label='Number of songs to generate', min_value=1, max_value=10, initial=1)
     length = forms.IntegerField(
-        label='Number of lines in each song', min_value=7, max_value=15, initial=10)
+        label='Number of lines in each song', min_value=10, max_value=20, initial=15)
 
 
 def testing(request):
