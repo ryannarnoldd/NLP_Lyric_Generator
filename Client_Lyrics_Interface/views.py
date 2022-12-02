@@ -13,7 +13,15 @@ import json
 
 
 lyrics = []
+
+# make songs global so that it can be accessed by the other functions.
 songs = []
+
+
+def reset_songs():
+    global songs
+    songs = []
+
 
 genius = Genius(
     'I9ceP8lra9tVkTCtlop-CiQojVy9_HhPpP2ZdnD_wEHcgphiDGVGm_a6MYRPHXto')
@@ -29,8 +37,10 @@ number, length = 0, 0
 corpus_lyrics = []
 lyr = ''
 
+
 def Placeholder_Text(text):
     return forms.TextInput(attrs={f'placeholder': text})
+
 
 class Song_Name_Form(forms.Form):
     song_name = forms.CharField(
@@ -38,16 +48,19 @@ class Song_Name_Form(forms.Form):
     artist_name = forms.CharField(
         label='Artist', max_length=100, widget=Placeholder_Text('Enter the artist'))
     # initial="twenty one pilots" is another option.
+
+
 class Album_Name_Form(forms.Form):
     album_name = forms.CharField(
         label='Album', max_length=100, widget=Placeholder_Text('Enter any album'))
     artist_name = forms.CharField(
         label='Artist', max_length=100, widget=Placeholder_Text('Enter the artist'))
+
+
 class Artist_Name_Form(forms.Form):
     # options = (('By_Artist', 'Generate from artist'))
     artist_name = forms.CharField(
         label='Artist', max_length=100, widget=Placeholder_Text('Enter any artist'))
-
 
 
 class Selection_Box(forms.Form):
@@ -62,11 +75,10 @@ class Selection_Box(forms.Form):
 
     # Create a number select box to enter number 1-5 for the number of songs to generate
     # Give a label saying "hit generate to generate a song based off of the above selection"
-    number = forms.IntegerField(label='Number of songs to generate', min_value=1, max_value=5, initial=1)
-    length = forms.IntegerField(label='Number of lines in each song', min_value=7, max_value=15, initial=10)
-
-
-
+    number = forms.IntegerField(
+        label='Number of songs to generate', min_value=1, max_value=5, initial=1)
+    length = forms.IntegerField(
+        label='Number of lines in each song', min_value=7, max_value=15, initial=10)
 
 
 def testing(request):
@@ -93,7 +105,7 @@ def get_songs_fields(request):
             number = request.POST['number']
             length = request.POST['length']
             if form.is_valid():
-                songs.clear()
+                reset_songs()
 
                 song = genius.search_song(song, name)
                 song_names += song.title + '\n'
@@ -101,14 +113,14 @@ def get_songs_fields(request):
 
                 generator = MarkovChain(corpus=' '.join([lyr]))
                 for _ in range(int(number)):
-                    gen = generator.gen_song(lines=int(length), length_range=[7,10])
+                    gen = generator.gen_song(
+                        lines=int(length), length_range=[7, 10])
                     gen = gen.splitlines()
                     song = []
                     for line in gen:
                         song.append(line)
                     songs.append(song)
 
-                
                 return HttpResponseRedirect('/')
         else:
             form = Song_Name_Form()
@@ -139,7 +151,6 @@ def get_albums_fields(request):
                 for song in album.tracks:
                     lyr += song.to_text()
                 print(lyr[0])
-                
 
                 # s = genius.search_all("Drake")
                 # song_id = s["sections"][0]['hits'][0]['result']['id']
@@ -189,10 +200,10 @@ def get_albums_fields(request):
 
                 generator = MarkovChain(corpus=lyr)
                 gen = generator.gen_song(
-                   lines=15, length_range=[7, 10])
+                    lines=15, length_range=[7, 10])
                 gen = gen.splitlines()
                 for line in gen:
-                   songs.append(line)
+                    songs.append(line)
 
                 return HttpResponseRedirect('/')
         else:
@@ -203,6 +214,7 @@ def get_albums_fields(request):
     except:
         print(RuntimeError("Something bad happened while generating lyrics..."))
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
+
 
 @csrf_exempt
 def get_artists_fields(request):
@@ -234,6 +246,3 @@ def get_artists_fields(request):
         print(RuntimeError("Something bad happened while generating lyrics..."))
 
     return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": songs})
-
-
-
