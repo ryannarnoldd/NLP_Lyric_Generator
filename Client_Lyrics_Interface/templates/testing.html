@@ -34,24 +34,36 @@
     <br><br>
     <input type="submit" value="Submit" />
 </form>
-
-
-<div></div>
-{% if songs %}
-    <h1 style="text-align: center;">Generated Lyrics</h1>
-    <!-- <hr style="margin: auto; color: black; fill:black"> -->
-    <div style="overflow-y: scroll; overflow-x: scroll; width:auto; white-space: nowrap;">
-        {% for song in songs %}
-        <div
-            style="margin-left: 10px; margin-right: 10px; display: inline-block; flex-direction: column; justify-content: center; align-items: center; flex-wrap: wrap; margin: 10px; padding: 10px; border-radius: 25px; border: 2px solid black; width: 30%; height: auto">
-            {% for line in song %}
-                <p id="lyrics">{{ line }}</p>
-            {% endfor %}
+<br></br>
+<div style="margin: auto;">
+    
+    {% if songs %}
+        <h1 style="text-align: center; margin: auto;">Generated Lyrics</h1>
+        <br></br>
+        <div style="overflow-y: scroll; overflow-x: scroll; width:auto; white-space: nowrap; margin: auto; display: flex; flex-wrap: wrap; row-gap: 25px;">
+            {% if songs|length == 0 %}
+                <div style="justify-content: center; align-items: center;  margin: auto; padding: 15px; border-radius: 25px; border: 2px solid black;  width:auto; height: auto;">
+                    <h3>"No Song to show..."</h3>
+                </div>
+            {% else %}
+                {% for artist, artist_songs in songs.items %}
+                    {% for song in artist_songs %}
+                        <div style="justify-content: center; align-items: center;  margin: auto; padding: 15px; border-radius: 25px; border: 2px solid black; width:auto; height: auto;">
+                            <div style = "margin: auto; text-align: center; padding: 7px;">
+                                <h2>These lyrics were inspired by <b>{{artist}}</b></h2>
+                            </div>
+                            {% for line in song %}
+                                <p id="lyrics">{{ line }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
         </div>
-        {% endfor %}
-        <hr style="margin: auto; color: black; fill:black"> 
+    {% endif %}
 
-{% endif %}
+    <br></br>
+    <hr style="margin: auto; width: 50%; color: black; fill:black"> 
 </div>
 
 
