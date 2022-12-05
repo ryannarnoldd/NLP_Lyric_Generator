@@ -1,0 +1,13 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image":{
+        "Name" : "facetofacebryce/nlp_lyric_generator_container",
+        "Update" : "true"
+    },
+    "ports":[
+        {
+            "ContainerPort":"8001"
+        }
+    ],
+    "Logging": "/var/log/nginx"
+}
