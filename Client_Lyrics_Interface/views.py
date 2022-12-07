@@ -13,6 +13,8 @@ import requests
 from django.views.decorators.csrf import csrf_exempt
 import json
 import traceback
+from dotenv import load_dotenv
+import os
 
 
 class MarkovChain:
@@ -61,9 +63,9 @@ lyrics = []
 songs = {}
 credit = "..."
 
-genius = Genius(
-    'I9ceP8lra9tVkTCtlop-CiQojVy9_HhPpP2ZdnD_wEHcgphiDGVGm_a6MYRPHXto')
-
+load_dotenv()
+genius_token = os.getenv('GENIUS_TOKEN')
+genius = Genius(genius_token)
 
 genius.verbose = True
 genius.remove_section_headers = True
