@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,10 +26,21 @@ SECRET_KEY = 'django-insecure--+&dzns0n8l+b8xb%=n@6)j*g64uyay)t3=%ft+_0-&6gfw9(%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'nlplyricgenerator-production.up.railway.app', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost',
+                 '0.0.0.0',
+                 '127.0.0.1',
+                 'http://NLP-Lyric-Generator-dev.us-east-1.elasticbeanstalk.com',
+                 'http://nlp-lyric-generator-dev.us-east-1.elasticbeanstalk.com',
+                 'nlp-lyric-generator-dev.us-east-1.elasticbeanstalk.com',
+                 'NLP-Lyric-Generator-dev.us-east-1.elasticbeanstalk.com'
+                 ]
 CSRF_TRUSTED_ORIGINS = ['http://localhost',
                         'https://nlplyricgenerator-production.up.railway.app',
-                        'https://genius.com']
+                        'https://genius.com',
+                        'http://NLP-Lyric-Generator-dev.us-east-1.elasticbeanstalk.com',
+                        'http://nlp-lyric-generator-dev.us-east-1.elasticbeanstalk.com'
+                        'http://0.0.0.0',
+                        ]
 
 # Application definition
 
@@ -130,3 +142,8 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Important for enabling secure sessions
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
