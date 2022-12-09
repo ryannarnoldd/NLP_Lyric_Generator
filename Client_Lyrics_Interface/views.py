@@ -86,7 +86,7 @@ class Settings_Box(forms.Form):
 class All_Form(forms.Form):
     songs_input = forms.CharField(
         label = '',
-        initial= "stressed out - twenty one pilots\ndrivers license - Olivia Rodrigo\ncardigan - Taylor Swift",
+        initial= "Under Pressure - logic\nrock + roll - eden\ncardigan - Taylor Swift",
         required=False,
         validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]* - [a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
         widget=forms.Textarea(
@@ -95,7 +95,7 @@ class All_Form(forms.Form):
 
     albums_input = forms.CharField(
         label = '',
-        initial = "SOUR - Olivia Rodrigo\nFolklore - Taylor Swift\nTrench - twenty one pilots",
+        initial = "The Eminem Show - Eminem\nBlurryface - twenty one pilots",
         required=False,
         validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]* - [a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
         widget=forms.Textarea(
@@ -104,7 +104,7 @@ class All_Form(forms.Form):
 
     artists_input = forms.CharField(
         label = '',
-        initial = "Taylor Swift\nPanic! at the Disco\ntwenty one pilots",
+        initial = "tech n9ne\nLogic",
         required=False,
         validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
         widget=forms.Textarea(
