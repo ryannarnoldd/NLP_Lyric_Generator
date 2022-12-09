@@ -66,6 +66,8 @@ genius.verbose = True
 genius.remove_section_headers = True
 genius.skip_non_songs = True
 genius.excluded_terms = ["(Remix)", "(Live)"]
+# genius.sleep_time = 2
+genius.retries = 1
 genius.timeout = 8
 
 song, album, artist = None, None, None
@@ -84,12 +86,12 @@ class Settings_Box(forms.Form):
 class All_Form(forms.Form):
     songs_input = forms.CharField(
         label = '',
-        initial=  "stressed out - twenty one pilots\ndrivers license - Olivia Rodrigo\ncardigan - Taylor Swift",
+        initial= "stressed out - twenty one pilots\ndrivers license - Olivia Rodrigo\ncardigan - Taylor Swift",
         required=False,
         validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]* - [a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
         widget=forms.Textarea(
-            attrs={"rows":"10", "cols":"5", "placeholder": "Enter song(s) (one per line)\nstressed out - twenty one pilots", 
-            "style": "width: 33%; float:left; resize: none"}))
+            attrs={"rows":"10", "cols":"5", "placeholder": "Enter song(s) (one per line)", 
+            "style": "width: 33.333333%; float:left; resize: none"}))
 
     albums_input = forms.CharField(
         label = '',
@@ -97,8 +99,8 @@ class All_Form(forms.Form):
         required=False,
         validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]* - [a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
         widget=forms.Textarea(
-            attrs={"rows":"10", "cols":"5", "placeholder": "Enter album(s) (one per line)\nSOUR - Olivia Rodrigo", 
-            "style": "width: 33%; float:left; resize: none"}))
+            attrs={"rows":"10", "cols":"5", "placeholder": "Enter album(s) (one per line)", 
+            "style": "width: 33.333333%; float:left; resize: none"}))
 
     artists_input = forms.CharField(
         label = '',
@@ -106,8 +108,8 @@ class All_Form(forms.Form):
         required=False,
         validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
         widget=forms.Textarea(
-            attrs={"rows":"10", "cols":"5", "placeholder": "Enter artist(s) (one per line)\nTaylor Swift", 
-            "style": "width: 33%; float:left; resize: none;"}))
+            attrs={"rows":"10", "cols":"5", "placeholder": "Enter artist(s) (one per line)", 
+            "style": "width: 33.333333%; float:left; resize: none;"}))
 
 @csrf_exempt
 def default_selection(request):
@@ -133,21 +135,31 @@ def get_songs(request):
 
             length = int(request.POST['length'])
             song_number = int(request.POST['number'])
-            creativity = 4 - int(int(request.POST['creativity'])/50)
+            creativity = 50 * round(int(request.POST['creativity'])/50)
+            creativity = 4 - int(int(creativity)/50)
             
             if form.is_valid() and settings.is_valid():
-                for song in songs_input:
-                    song = genius.search_song(*song)
+                if songs_input == [] and albums_input == [] and artists_input == []:
+                    return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': 'Please enter at least one song, album, or artist.', "songs": None})
+                
+                for song_name in songs_input:
+                    song = genius.search_song(*song_name)
+                    if song == None:
+                        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': f'{" - ".join(song_name)} is not a VALID song.', "songs": None})
                     inspired_songs.append(song.full_title.strip())
                     lyrics += song.lyrics
                 
-                for album in albums_input:
-                    album = genius.search_album(*album)
+                for album_name in albums_input:
+                    album = genius.search_album(*album_name)
+                    if album == None:
+                        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': f'{" - ".join(list(album))} is not a VALID album.', "songs": None})
                     inspired_albums.append(album.full_title.strip())
                     lyrics += album.to_text()
 
-                for artist in artists_input:
-                    artist = genius.search_artist(artist, max_songs=1)
+                for artist_name in artists_input:
+                    artist = genius.search_artist(artist_name, max_songs=1)
+                    if artist == None:
+                        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': f'{artist_name} is not a VALID artist.', "songs": None})
                     inspired_artists.append(artist.name.strip())
                     for song in artist.songs:
                         lyrics += song.lyrics
@@ -183,7 +195,6 @@ def get_songs(request):
         
     # Something bad happened.
     except Exception as e:
-        print(RuntimeError("Something bad happened while generating lyrics..."))
         print(e)
         traceback.print_exc()
         return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': "Something bad happened while generating lyrics...", "songs": None})
