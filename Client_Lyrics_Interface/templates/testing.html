@@ -1,6 +1,6 @@
 <style>
-    input {
-        text-align: center;
+    textarea {
+        text-align: left;
         flex: auto;
     }
 
@@ -17,54 +17,118 @@
         text-align: center;
         border-radius: 25px;
         border: 2px solid black;
-        padding: 20px;
-        width: 50%;
+        padding: 10px;
+        width: 75%;
         height: auto
     }
+
+.alert {
+  padding: 20px;
+  /* Light red */
+  background-color: #ff8880;
+  color: black;
+  margin-bottom: 15px;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: grey;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+/* When moving the mouse over the close button */
+.closebtn:hover {
+  color: black;
+}
+
 </style>
+
+<!-- if message -->
+{% if message %}
+    <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        {{ message }}
+    </div>
+{% endif %}
+
 
 <h1 style="text-align: center;">Natural Language Lyric Generator!</h1>
 
 <form action="" method="post">
 
     {% csrf_token %}
-    {{ select }}
-    <br>
+    {{ settings }}
+    <br><br>
     {{ form }}
     <br><br>
     <input type="submit" value="Submit" />
 </form>
-<br></br>
 <div style="margin: auto;">
     
     {% if songs %}
-        <h1 style="text-align: center; margin: auto;">Generated Lyrics</h1>
-        <br></br>
-        <div style="overflow-y: scroll; overflow-x: scroll; width:auto; white-space: nowrap; margin: auto; display: flex; flex-wrap: wrap; row-gap: 25px;">
-            {% if songs|length == 0 %}
-                <div style="justify-content: center; align-items: center;  margin: auto; padding: 15px; border-radius: 25px; border: 2px solid black;  width:auto; height: auto;">
+        <div style = "margin: auto; text-align: center;">
+            {% if songs.inspired.songs or songs.inspired.albums or songs.inspired.artists %}
+                <h1><b>These songs were inspired by...</b></h1>
+                <div style="display: flex; flex-direction: row; align-items: center; flex-wrap: wrap;">
+                    {% if songs.inspired.songs %}
+                        <div style="align-items: center; flex: left;  margin: auto;">
+                            <h1>Song(s)</h1>
+                            <h3>{{ songs.inspired.songs|join:"<br>" }}</h3>
+                        </div>
+                    {% endif %}
+
+                    {% if songs.inspired.albums %}
+                        <div style="align-items: center; flex: left;  margin: auto;">
+                            <h1>Album(s)</h1>
+                            <br>
+                            <h3>{{ songs.inspired.albums|join:"<br>" }}</h3>
+                        </div>
+                    {% endif %}
+
+                     {% if songs.inspired.artists %}
+                        <div style="align-items: center; flex: left;  margin: auto;">
+                            <h1>Artist(s)</h1>
+                            <h3>{{ songs.inspired.artists|join:"<br>" }}</h3>
+                        </div>
+                    {% endif %}
+
+
+
+                </div>
+            </div>
+            <hr style="margin: auto; width: 75%; color: black; fill:black"> 
+        {% endif %} 
+        
+        <br>
+        <div style="overflow-y: fixed; overflow-x: scroll; width:auto; white-space: nowrap; margin: auto; display: flex; row-gap: 25px;">
+            {% for songs in songs.lyrics %}
+                {% for song in songs %}
+                    <div style="justify-content: center; align-items: center; margin: auto; padding: 15px; margin-left: 5px; margin-right: 5px; border-radius: 10px; border: 1px solid black; width:auto; height: auto;">
+                        {% for line in song %}
+                            <p id="lyrics">{{ line }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        <br>
+        <hr style="margin: auto; width: 75%; color: black; fill:black"> 
+    {% endif %}
+    
+</div>
+
+
+            <!-- {% if songs|length == 0 %}
+                <div style="justify-content: center; align-items: center; margin: auto; padding: 15px; border-radius: 25px; border: 2px solid black;  width:auto; height: auto;">
                     <h3>"No Song to show..."</h3>
                 </div>
-            {% else %}
-                {% for artist, artist_songs in songs.items %}
-                    {% for song in artist_songs %}
-                        <div style="justify-content: center; align-items: center;  margin: auto; padding: 15px; border-radius: 25px; border: 2px solid black; width:auto; height: auto;">
-                            <div style = "margin: auto; text-align: center; padding: 7px;">
-                                <h2>These lyrics were inspired by <b>{{artist}}</b></h2>
-                            </div>
-                            {% for line in song %}
-                                <p id="lyrics">{{ line }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-            {% endif %}
-        </div>
-    {% endif %}
-
-    <br></br>
-    <hr style="margin: auto; width: 50%; color: black; fill:black"> 
-</div>
+            {% else %} {% endif %} -->
+            
 
 
 
@@ -92,15 +156,3 @@
     -->
 
     </form>
-
-    <script>
-
-        const redirect_table = ["./songs", "./albums", "./artists"];
-        var selectors = document.querySelectorAll("input[type='radio']");
-        for (const s in selectors) {
-            selectors[s].onclick = function () {
-                window.location.href = redirect_table[s];
-                selectors[s].checked = true;
-            }
-        }
-    </script>

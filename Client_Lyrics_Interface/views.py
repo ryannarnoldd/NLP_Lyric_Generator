@@ -15,7 +15,7 @@ import json
 import traceback
 from dotenv import load_dotenv
 import os
-
+from django.core.validators import RegexValidator
 
 class MarkovChain:
     def __init__(self, corpus='', starting_words='', order=2, length=8):
@@ -58,11 +58,6 @@ class MarkovChain:
 
         return '\n'.join(song)
 
-
-lyrics = []
-songs = {}
-credit = "..."
-
 load_dotenv()
 genius_token = os.getenv('GENIUS_TOKEN')
 genius = Genius(genius_token)
@@ -71,207 +66,127 @@ genius.verbose = True
 genius.remove_section_headers = True
 genius.skip_non_songs = True
 genius.excluded_terms = ["(Remix)", "(Live)"]
+genius.timeout = 8
 
-song, album, artist = 0, 0, 0
+song, album, artist = None, None, None
 song_names, album_names, artist_names = '', '', ''
-corpus_lyrics = []
-lyr = ''
+lyrics = ''
 
-
-def Placeholder_Text(text):
-    return forms.TextInput(attrs={f'placeholder': text})
-
-
-class Song_Name_Form(forms.Form):
-    song_name = forms.CharField(
-        label='Song', max_length=100, widget=Placeholder_Text('Enter any song'))
-    artist_name = forms.CharField(
-        label='Artist', max_length=100, widget=Placeholder_Text('Enter the artist'))
-    # initial="twenty one pilots" is another option.
-
-
-class Album_Name_Form(forms.Form):
-    album_name = forms.CharField(
-        label='Album', max_length=100, widget=Placeholder_Text('Enter any album'))
-    artist_name = forms.CharField(
-        label='Artist', max_length=100, widget=Placeholder_Text('Enter the artist'))
-
-
-class Artist_Name_Form(forms.Form):
-    # options = (('By_Artist', 'Generate from artist'))
-    artist_name = forms.CharField(
-        label='Artist', max_length=100, widget=Placeholder_Text('Enter any artist'))
-
-
-class Selection_Box(forms.Form):
-    selector = forms.ChoiceField(choices=(
-        ("1", "Song(s)"),
-        ("2", "Album(s)"),
-        ("3", "Artist(s)")
-    ), label='Generate a song based off...',
-        widget=forms.RadioSelect,
-        initial="1",
-    )
-
-    # Create a number select box to enter number 1-5 for the number of songs to generate
-    # Give a label saying "hit generate to generate a song based off of the above selection"
+class Settings_Box(forms.Form):
     number = forms.IntegerField(
         label='Number of songs to generate', min_value=1, max_value=10, initial=1)
     length = forms.IntegerField(
         label='Number of lines in each song', min_value=1, max_value=30, initial=15)
+    creativity = forms.IntegerField(
+        label='Creativity',
+        widget=forms.NumberInput(attrs={'type':'range', 'step': '4', 'min': '0', 'max': '100', 'initial': '100'}))
 
+class All_Form(forms.Form):
+    songs_input = forms.CharField(
+        label = '',
+        initial=  "stressed out - twenty one pilots\ndrivers license - Olivia Rodrigo\ncardigan - Taylor Swift",
+        required=False,
+        validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]* - [a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
+        widget=forms.Textarea(
+            attrs={"rows":"10", "cols":"5", "placeholder": "Enter song(s) (one per line)\nstressed out - twenty one pilots", 
+            "style": "width: 33%; float:left; resize: none"}))
 
-def testing(request):
-    return render(request, 'testing.html', {})
+    albums_input = forms.CharField(
+        label = '',
+        initial = "SOUR - Olivia Rodrigo\nFolklore - Taylor Swift\nTrench - twenty one pilots",
+        required=False,
+        validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]* - [a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
+        widget=forms.Textarea(
+            attrs={"rows":"10", "cols":"5", "placeholder": "Enter album(s) (one per line)\nSOUR - Olivia Rodrigo", 
+            "style": "width: 33%; float:left; resize: none"}))
 
+    artists_input = forms.CharField(
+        label = '',
+        initial = "Taylor Swift\nPanic! at the Disco\ntwenty one pilots",
+        required=False,
+        validators=[RegexValidator('(?m:(^[a-zA-Z0-9 ]*$\r?\n?)+)', 'Please follow correct input format.')],
+        widget=forms.Textarea(
+            attrs={"rows":"10", "cols":"5", "placeholder": "Enter artist(s) (one per line)\nTaylor Swift", 
+            "style": "width: 33%; float:left; resize: none;"}))
 
 @csrf_exempt
 def default_selection(request):
-    return render(request, 'testing.html', {'form': None, 'messages': None, "songs": None})
-
-
-@ csrf_exempt
-def get_songs_fields(request):
-    try:
-        if not "generated_songs" in request.session:
-            request.session["generated_songs"] = ["No Song to show..."]
-        if request.method == 'POST':
-            genius.timeout = 8
-            artist_names, lyr, song_names = '', '', ''
-            form = Song_Name_Form(request.POST)
-            s = Selection_Box(request.POST)
-            song = request.POST['song_name']
-            name = request.POST['artist_name']
-            choice = request.POST['selector']
-            length = request.POST['length']
-            if form.is_valid():
-                song = genius.search_song(song, name)
-                song_names += song.title + '\n'
-                lyr = song.lyrics
-                answer = []
-                generator = MarkovChain(corpus=lyr)
-                gen = generator.gen_song(lines= int(length), length_range=[7, 10])
-                gen = gen.splitlines()
-                for line in gen:
-                    answer.append(line)
-
-
-                request.session['generated_songs'] = songs
-                if name not in songs:
-                    temp = []
-                    temp.append(answer)
-                    songs[name] = temp
-                else:
-                    temp = songs[name]
-                    temp.append(answer )
-                    songs[name] = temp
-                
-                return HttpResponseRedirect('/songs')
-        else:
-            form = Song_Name_Form()
-            s = Selection_Box()
-            s.fields["selector"].initial = [1]
-    except Exception as e:
-        print(RuntimeError("Something bad happened while generating lyrics..."))
-        print(e)
-    return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": request.session['generated_songs']})
-
+    return render(request, 'testing.html', {'form': None, 'settings': None, 'message': None, "songs": None})
 
 @csrf_exempt
-def get_albums_fields(request):
+def get_songs(request):
     try:
-        if not "generated_songs" in request.session:
-            request.session["generated_songs"] = ["No Song to show..."]
         if request.method == 'POST':
+            lyrics = ''
+            inspired_songs, inspired_albums, inspired_artists = [], [], []
+            form = All_Form(request.POST)
+            settings = Settings_Box(request.POST)
+
+            songs_input = request.POST['songs_input'].splitlines()
+            songs_input = [tuple(song.split(" - ")) for song in songs_input if song != '']
+
+            albums_input = request.POST['albums_input'].splitlines()
+            albums_input = [tuple(album.split(" - ")) for album in albums_input if album != '']
+
+            artists_input = request.POST['artists_input'].splitlines()
+            artists_input = [artist for artist in artists_input if artist != '']
+
+            length = int(request.POST['length'])
+            song_number = int(request.POST['number'])
+            creativity = 4 - int(int(request.POST['creativity'])/50)
             
-            genius.timeout = 60
-            artist_names, lyr, credit = '', '', '' 
-            form = Album_Name_Form(request.POST)
-            selections = Selection_Box(request.POST)
-            name = request.POST['artist_name']
-            album_name = request.POST['album_name']
-            length = request.POST['length']
-            
-            if form.is_valid():
-                album = genius.search_album(name=album_name, artist=name)
-                for song in album.tracks:
-                    lyr += song.to_text()
-            
-                answer = []
-                generator = MarkovChain(corpus=lyr)
-                gen = generator.gen_song(lines= int(length), length_range=[7, 10])
-                gen = gen.splitlines()
-                for line in gen:
-                    answer.append(line)
-
-                request.session['generated_songs'] = songs
-                if name not in songs:
-                    temp = []
-                    temp.append(answer)
-                    songs[name] = temp
-                else:
-                    temp = songs[name]
-                    temp.append(answer )
-                    songs[name] = temp
-                return HttpResponseRedirect('/albums')
-        else:
-            form = Album_Name_Form()
-            selections = Selection_Box()
-            selections.fields["selector"].initial = [2]
-    except Exception as e:
-        print(RuntimeError("Something bad happened while generating lyrics..."))
-        print(e)
-
-    return render(request, 'testing.html', {'form': form, 'select': selections, "songs": request.session["generated_songs"]})
-
-
-@csrf_exempt
-def get_artists_fields(request):
-    try:
-        if not "generated_songs" in request.session:
-            request.session["generated_songs"] = ["No Song to show..."]
-        if request.method == 'POST':
-            genius.timeout = 8
-            artist_names, lyr = '', ''
-            form = Artist_Name_Form(request.POST)
-            s = Selection_Box(request.POST)
-            name = request.POST['artist_name']
-            length = request.POST['length']
-            song_number = request.POST['number']
-            
-            if form.is_valid():
-                artist = genius.search_artist(
-                    artist_name=name, max_songs=int(song_number))
-
-                for song in artist.songs:
-                    lyr += song.lyrics
-
-                answer = []
-                generator = MarkovChain(corpus=lyr)
-                gen = generator.gen_song(lines= int(length), length_range=[7, 10])
-                gen = gen.splitlines()
-                for line in gen:
-                    answer.append(line)
-
-                print(answer)
-                request.session['generated_songs'] = songs
-                if name not in songs:
-                    temp = []
-                    temp.append(answer)
-                    songs[name] = temp
-                else:
-                    temp = songs[name]
-                    temp.append(answer)
-                    songs[name] = temp
+            if form.is_valid() and settings.is_valid():
+                for song in songs_input:
+                    song = genius.search_song(*song)
+                    inspired_songs.append(song.full_title.strip())
+                    lyrics += song.lyrics
                 
-                return HttpResponseRedirect('/artists')
+                for album in albums_input:
+                    album = genius.search_album(*album)
+                    inspired_albums.append(album.full_title.strip())
+                    lyrics += album.to_text()
+
+                for artist in artists_input:
+                    artist = genius.search_artist(artist, max_songs=1)
+                    inspired_artists.append(artist.name.strip())
+                    for song in artist.songs:
+                        lyrics += song.lyrics
+
+                generator = MarkovChain(corpus=lyrics, order=creativity)
+                song_list = []
+                for _ in range(song_number):
+                    gen = generator.gen_song(lines= int(length), length_range=[7, 10])
+                    song_list.append(gen.splitlines())
+
+                request.session['generated_songs'] = {
+                    "inspired": {
+                        "songs": inspired_songs,
+                        "albums": inspired_albums,
+                        "artists": inspired_artists,
+                    },
+                    "lyrics": [
+                        song_list
+                    ]
+                }
+
+            # Regex validation failed.
+            else:
+                settings = Settings_Box()
+                form = All_Form()
+                return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': "Please follow correct input format.", "songs": None})
+        
+        # GET request.
         else:
-            form = Artist_Name_Form()
-            s = Selection_Box()
-            s.fields["selector"].initial = [3]
+            settings = Settings_Box()
+            form = All_Form()
+            request.session['generated_songs'] = None # Reset session.
+        
+    # Something bad happened.
     except Exception as e:
         print(RuntimeError("Something bad happened while generating lyrics..."))
         print(e)
         traceback.print_exc()
-
-    return render(request, 'testing.html', {'form': form, 'select': s, 'messages': lyrics, "songs": request.session["generated_songs"]})
+        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': "Something bad happened while generating lyrics...", "songs": None})
+        
+    # Everything went well.
+    return render(request, 'testing.html', {'form': form, 'settings': settings, "message": None, "songs": request.session["generated_songs"]})
