@@ -113,11 +113,12 @@ class All_Form(forms.Form):
 
 @csrf_exempt
 def default_selection(request):
-    return render(request, 'testing.html', {'form': None, 'settings': None, 'message': None, "songs": None})
+    return render(request, 'testing.html', {'form': None, 'settings': None, 'messages': None, "songs": None})
 
 @csrf_exempt
 def get_songs(request):
     try:
+        messages = []
         if request.method == 'POST':
             lyrics = ''
             inspired_songs, inspired_albums, inspired_artists = [], [], []
@@ -140,29 +141,35 @@ def get_songs(request):
             
             if form.is_valid() and settings.is_valid():
                 if songs_input == [] and albums_input == [] and artists_input == []:
-                    return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': 'Please enter at least one song, album, or artist.', "songs": None})
+                    return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': ['Please enter at least one song, album, or artist.'], "songs": None})
                 
                 for song_name in songs_input:
                     song = genius.search_song(*song_name)
-                    if song == None:
-                        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': f'{" - ".join(song_name)} is not a VALID song.', "songs": None})
-                    inspired_songs.append(song.full_title.strip())
-                    lyrics += song.lyrics
+                    if song != None:
+                        inspired_songs.append(song.full_title.strip())
+                        lyrics += song.lyrics
+                        print(f'Song {" - ".join(song_name)} found.')
+                    else:
+                        print(f'Song {" - ".join(song_name)} not found.')
+                        messages.append(f'Song {" - ".join(song_name)} not found.')
                 
                 for album_name in albums_input:
                     album = genius.search_album(*album_name)
-                    if album == None:
-                        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': f'{" - ".join(list(album))} is not a VALID album.', "songs": None})
-                    inspired_albums.append(album.full_title.strip())
-                    lyrics += album.to_text()
+                    if album != None:
+                        inspired_albums.append(album.full_title.strip())
+                        lyrics += album.to_text() 
+                    else:
+                        messages.append(f'Album {" - ".join(album_name)} not found.')                
 
                 for artist_name in artists_input:
                     artist = genius.search_artist(artist_name, max_songs=1)
-                    if artist == None:
-                        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': f'{artist_name} is not a VALID artist.', "songs": None})
-                    inspired_artists.append(artist.name.strip())
-                    for song in artist.songs:
-                        lyrics += song.lyrics
+                    if artist != None:
+                        inspired_artists.append(artist.name.strip())
+                        for song in artist.songs:
+                            lyrics += song.lyrics
+                    else:
+                        messages.append(f'Artist {artist_name} not found.')
+
 
                 generator = MarkovChain(corpus=lyrics, order=creativity)
                 song_list = []
@@ -185,7 +192,7 @@ def get_songs(request):
             else:
                 settings = Settings_Box()
                 form = All_Form()
-                return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': "Please follow correct input format.", "songs": None})
+                return render(request, 'testing.html', {'form': form, 'settings': settings, 'messages': ["Please follow correct input format."], "songs": None})
         
         # GET request.
         else:
@@ -197,7 +204,7 @@ def get_songs(request):
     except Exception as e:
         print(e)
         traceback.print_exc()
-        return render(request, 'testing.html', {'form': form, 'settings': settings, 'message': "Something bad happened while generating lyrics...", "songs": None})
+        return render(request, 'testing.html', {'form': form, 'settings': settings, 'messages': ["Something bad happened while generating lyrics..."], "songs": None})
         
     # Everything went well.
-    return render(request, 'testing.html', {'form': form, 'settings': settings, "message": None, "songs": request.session["generated_songs"]})
+    return render(request, 'testing.html', {'form': form, 'settings': settings, "messages": messages, "songs": request.session["generated_songs"]})
